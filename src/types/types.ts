@@ -20,13 +20,24 @@ export interface Room {
     customerEmail: string;
 }
 export interface CalendarClientProps {
-    roomAvailability: Room[];
+    roomAvailability: CalendarRoom[];
 }
 
 export interface BookingPageProps {
-    roomAvailability: Room[]; 
+    roomAvailability: CalendarRoom[]; 
 }
 
 export interface CalendarProps {
-    roomAvailability: Room[];
+    roomAvailability: CalendarRoom[];
 }
+
+export type CalendarRoom = {
+  roomId: number;
+  roomType: string;
+  bookings: CalendarBooking[];
+};
+
+export type CalendarBooking  = {
+  startDate: Date;
+  endDate: Date;
+};

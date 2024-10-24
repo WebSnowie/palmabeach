@@ -2,9 +2,9 @@
 import { z } from 'zod';
 import { db } from '@/drizzle/db';
 import { inventory, bookings, inventoryPeriods } from '@/drizzle/schema';
-import { sql, and, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
-import { Room, UpdatedRoom } from '@/types/types';
+import { sql, and, eq } from 'drizzle-orm';
+import { UpdatedRoom, CalendarRoom } from '@/types/types';
 
 // Schema for validating booking form data
 const BookingFormSchema = z.object({
@@ -90,56 +90,61 @@ export async function updateBooking(booking: {
     }
 }
 
-
-export async function getCalenderDates() {
+export async function getCalenderDates(): Promise<CalendarRoom[]> {
     try {
-        const results = await db
+        // First, get all rooms from the inventory
+        const rooms = await db
             .select({
                 roomId: inventory.room_id,
                 roomType: inventory.room_type,
-                bookingId: bookings.bookingId,
-                startDate: bookings.startDate,
-                endDate: bookings.endDate,
-                customerName: bookings.customerName,
-                customerSurname: bookings.customerSurname,
-                customerPhone: bookings.customerPhone,
-                customerEmail: bookings.customerEmail,
             })
-            .from(bookings)
-            .leftJoin(inventory, sql`${bookings.room_id} = ${inventory.room_id}`) // Use sql for comparison
+            .from(inventory)
             .execute();
 
-        const roomMap = new Map<string, Room>();
+        // Then, get all bookings from inventoryPeriods
+        const bookings = await db
+            .select({
+                roomId: inventoryPeriods.room_id,
+                startDate: inventoryPeriods.start,
+                endDate: inventoryPeriods.end,
+            })
+            .from(inventoryPeriods)
+            .execute();
 
-        results.forEach(result => {
-            const key = `${result.roomId}-${result.roomType}`;
-            if (!roomMap.has(key)) {
-                roomMap.set(key, {
-                    roomId: result.roomId!, 
-                    roomType: result.roomType!, 
-                    bookings: [],
-                });
-            }
+        // Create a map to store rooms with their bookings
+        const roomMap = new Map<number, CalendarRoom>();
 
-            if (result.startDate && result.endDate) {
-                roomMap.get(key)?.bookings.push({
-                    bookingId: result.bookingId,
-                    startDate: result.startDate,
-                    endDate: result.endDate,
-                    customerName: result.customerName,
-                    customerSurname: result.customerSurname,
-                    customerPhone: result.customerPhone,
-                    customerEmail: result.customerEmail,
+        // Initialize the map with rooms from inventory
+        rooms.forEach(room => {
+            roomMap.set(room.roomId, {
+                roomId: room.roomId,
+                roomType: room.roomType,
+                bookings: [],
+            });
+        });
+
+        // Add bookings to the corresponding rooms
+        bookings.forEach(booking => {
+            const room = roomMap.get(booking.roomId);
+            if (room) {
+                room.bookings.push({
+                    startDate: booking.startDate,
+                    endDate: booking.endDate,
                 });
             }
         });
 
+        revalidatePath("/");
+
+        // Convert the map to an array and return
         return Array.from(roomMap.values());
     } catch (error) {
         console.error("Error fetching room availability:", error);
         throw new Error("Database query failed");
     }
 }
+
+
 
 // Function to get all rooms from the inventory
 export async function getRooms() {
@@ -174,8 +179,6 @@ export async function createRoom({ roomNumber, roomType, price }: { roomNumber: 
         throw new Error('Failed to create room');
     }
 }
-
-
 
 
 export async function updateRoomAction(updatedRoom: UpdatedRoom) {
@@ -318,11 +321,17 @@ async function checkRoomAvailability(
                 .execute();
 
             // Check if conflicts is empty
-            if (conflicts.length === 0) {
+            if (conflicts.length > 0) {
                 // Check the count of conflicts
+                const conflictCount = conflicts.reduce((acc, conflict) => acc + conflict.count, 0);
+                console.log(conflictCount);
+                
+            } else {
+                // If no conflicts found, return this room's ID
                 return room.roomId;
             }
         }
+
         return null;
     } catch (error) {
         console.error('Error in checkRoomAvailability:', error);
@@ -358,7 +367,10 @@ export async function createBooking(formData: FormData) {
         }
 
         // Check if start date is not in the past
-        if (startDate < new Date()) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set to beginning of the day
+
+        if (startDate < today) {
             throw new Error('Start date cannot be in the past');
         }
 
@@ -396,15 +408,10 @@ export async function createBooking(formData: FormData) {
             end: endDate, // End date
         }).execute();
 
-
-        // Revalidate the page to update the UI
-        revalidatePath('/');
-
         return { success: true, bookingId };
     } catch (error) {
         console.error('Error creating booking:', error);
         if (error instanceof z.ZodError) {
-            return { success: false, error: 'Invalid form data', details: error.errors };
         }
         if (error instanceof Error) {
             return { success: false, error: error.message };

@@ -11,32 +11,31 @@ const CalendarDB: React.FC<CalendarProps> = ({ roomAvailability }) => {
     const [endDate, setEndDate] = useState<Date | undefined>(undefined);
     const [roomType, setRoomType] = useState<string>('');
     const router = useRouter();
-    const searchParams = useSearchParams();
 
     useEffect(() => {
+        // Reset state on component mount or when roomAvailability changes
         if (roomAvailability.length > 0) {
-            const roomTypeFromParams = searchParams.get('roomType');
-            const checkInDate = searchParams.get('checkInDate');
-            const checkOutDate = searchParams.get('checkOutDate');
-
-            if (roomTypeFromParams) {
-                setRoomType(roomTypeFromParams);
+            const tonight = new Date();
+            tonight.setHours(0, 0, 0, 0);
+    
+            // Define the room type priority order
+            const roomTypePriority = ['single', 'double', 'deluxe', 'suite'];
+    
+            // Find the first available room type based on priority
+            const availableRoomType = roomTypePriority.find(type => 
+                isRoomTypeAvailable(tonight, type)
+            );
+    
+            if (availableRoomType) {
+                setRoomType(availableRoomType);
             } else {
-                const tonight = new Date();
-                tonight.setHours(0, 0, 0, 0);
-                
-                const availableRoomType = roomAvailability.find(room => 
-                    isRoomTypeAvailable(tonight, room.roomType)
-                )?.roomType;
-
-                setRoomType(availableRoomType || roomAvailability[0].roomType);
+                // If no room is available, set to the first room type in the list
+                setRoomType(roomAvailability[0].roomType);
             }
-
-            if (checkInDate) setStartDate(new Date(checkInDate));
-            if (checkOutDate) setEndDate(new Date(checkOutDate));
         }
-    }, [roomAvailability, searchParams]);
-
+    
+    }, [roomAvailability]);
+    
     const isRoomTypeAvailable = (date: Date, type: string) => {
         const room = roomAvailability.find(room => room.roomType === type);
         if (!room) return false;
@@ -49,20 +48,11 @@ const CalendarDB: React.FC<CalendarProps> = ({ roomAvailability }) => {
             (nextDay >= new Date(booking.startDate) && nextDay <= new Date(booking.endDate))
         );
     };
-
-    const handleDateChange = (dates: [Date | null, Date | null]) => {
-        const [start, end] = dates;
-        if (start && end && start.getTime() === end.getTime()) {
-            return;
-        }
-        setStartDate(start || undefined);
-        setEndDate(end || undefined);
-    };
-
+    
     const isDateFullyBooked = (date: Date) => {
         const roomsOfSelectedType = roomAvailability.filter(room => room.roomType === roomType);
         const totalRoomsOfType = roomsOfSelectedType.length;
-
+    
         const bookedRoomsCount = roomsOfSelectedType.filter(room => 
             room.bookings.some(booking => {
                 const bookingStart = new Date(booking.startDate);
@@ -70,9 +60,58 @@ const CalendarDB: React.FC<CalendarProps> = ({ roomAvailability }) => {
                 return date >= bookingStart && date <= bookingEnd;
             })
         ).length;
-
+    
         return bookedRoomsCount >= totalRoomsOfType;
     };
+    
+    // New function to check if any room type is available for a given date
+    const isAnyRoomTypeAvailable = (date: Date) => {
+        return ['single', 'double', 'deluxe', 'suite'].some(type => 
+            isRoomTypeAvailable(date, type)
+        );
+    };
+    
+    // Modified handleDateChange to automatically switch room type if necessary
+    const handleDateChange = (dates: [Date | null, Date | null]) => {
+        const [start, end] = dates;
+        if (start && end && start.getTime() === end.getTime()) {
+            return;
+        }
+    
+        if (start && end) {
+            let currentDate = new Date(start);
+            const roomTypePriority = ['single', 'double', 'deluxe', 'suite'];
+            let selectedType = roomType;
+    
+            while (currentDate <= end) {
+                if (!isRoomTypeAvailable(currentDate, selectedType)) {
+                    // If current type is not available, find the first available type
+                    const availableType = roomTypePriority.find(type => 
+                        isRoomTypeAvailable(currentDate, type)
+                    );
+    
+                    if (availableType) {
+                        selectedType = availableType;
+                    } else {
+                        // No room type available for this date
+                        setStartDate(undefined);
+                        setEndDate(undefined);
+                        return;
+                    }
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+    
+            // If we've made it here, we have a valid date range and room type
+            setRoomType(selectedType);
+            setStartDate(start);
+            setEndDate(end);
+        } else {
+            setStartDate(start || undefined);
+            setEndDate(end || undefined);
+        }
+    };
+    
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -141,5 +180,4 @@ const CalendarDB: React.FC<CalendarProps> = ({ roomAvailability }) => {
 };
 
 export default CalendarDB;
-
 

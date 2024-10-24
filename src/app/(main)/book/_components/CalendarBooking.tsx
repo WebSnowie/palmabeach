@@ -35,26 +35,32 @@ const Calendar: React.FC<CalendarProps> = ({ roomAvailability }) => {
 
     // Date availability checking
     const isDateBooked = (date: Date) => {
-        const bookingsForSelectedRoomType = roomAvailability.find(
+        const roomsOfSelectedType = roomAvailability.filter(
             room => room.roomType === roomType
-        )?.bookings || [];
+        );
         
-        return bookingsForSelectedRoomType.some(booked => 
-            date >= new Date(booked.startDate) && 
-            date <= new Date(booked.endDate)
+        if (roomsOfSelectedType.length === 0) return true; // No rooms of this type available
+
+        // Check if all rooms of this type are booked for this date
+        return roomsOfSelectedType.every(room => 
+            room.bookings.some(booking => 
+                date >= new Date(booking.startDate) && 
+                date <= new Date(booking.endDate)
+            )
         );
     };
 
+
     const isRoomTypeAvailable = (date: Date, type: string) => {
-        const room = roomAvailability.find(room => room.roomType === type);
-        if (!room) return false;
+        const roomsOfType = roomAvailability.filter(room => room.roomType === type);
+        if (roomsOfType.length === 0) return false;
         
-        const nextDay = new Date(date);
-        nextDay.setDate(nextDay.getDate() + 1);
-        
-        return !room.bookings.some(booking => 
-            (date >= new Date(booking.startDate) && date <= new Date(booking.endDate)) ||
-            (nextDay >= new Date(booking.startDate) && nextDay <= new Date(booking.endDate))
+        // Check if at least one room of this type is available
+        return roomsOfType.some(room => 
+            !room.bookings.some(booking => 
+                date >= new Date(booking.startDate) && 
+                date <= new Date(booking.endDate)
+            )
         );
     };
 
@@ -64,23 +70,32 @@ const Calendar: React.FC<CalendarProps> = ({ roomAvailability }) => {
             const checkInDate = searchParams.get('checkInDate');
             const checkOutDate = searchParams.get('checkOutDate');
     
+            const tonight = new Date();
+            tonight.setHours(0, 0, 0, 0);
+    
+            // Define the room type priority order
+            const roomTypePriority = ['single', 'double', 'deluxe', 'suite'];
+    
+            // Update roomType based on URL params or availability
             if (roomTypeFromParams) {
                 setRoomType(roomTypeFromParams);
             } else {
-                const tonight = new Date();
-                tonight.setHours(0, 0, 0, 0);
-                
-                const availableRoomType = roomAvailability.find(room => 
-                    isRoomTypeAvailable(tonight, room.roomType)
-                )?.roomType;
+                // Find the first available room type based on priority
+                const availableRoomType = roomTypePriority.find(type => 
+                    isRoomTypeAvailable(tonight, type)
+                );
     
-                setRoomType(availableRoomType || roomAvailability[0].roomType);
+                if (availableRoomType) {
+                    setRoomType(availableRoomType);
+                } else {
+                    // If no room is available, set to the first room type in the list
+                    setRoomType(roomAvailability[0].roomType);
+                }
             }
     
+            // Update dates based on URL params
             if (checkInDate) setStartDate(new Date(checkInDate));
             if (checkOutDate) setEndDate(new Date(checkOutDate));
-        } else {
-            setRoomType('single');
         }
     }, [roomAvailability, searchParams]);
 

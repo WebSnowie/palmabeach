@@ -316,15 +316,6 @@ async function checkRoomAvailability(
                     bookings.endDate
                 )
                 .execute();
-
-            // Check if conflicts is empty
-            if (conflicts.length > 0) {
-                // Check the count of conflicts
-                const conflictCount = conflicts.reduce((acc, conflict) => acc + conflict.count, 0);
-            } else {
-                // If no conflicts found, return this room's ID
-                return room.roomId;
-            }
         }
         return null;
     } catch (error) {

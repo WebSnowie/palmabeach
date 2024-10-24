@@ -61,8 +61,7 @@ const ContactUs: React.FC = () => {
           transition={{ duration: 0.5 }}
         >
           <h2 className="text-3xl font-bold text-gray-900 mb-4">Contact Us</h2>
-          <p className="text-gray-600 mb-6">Have questions about our surf camp? We're here to help! Feel free to reach out using the form below or through our other contact methods.</p>
-          
+          <p className="text-gray-600 mb-6">Have questions about our surf camp? We&apos;re here to help! Feel free to reach out using the form below or through our other contact methods.</p>          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
             <div>
               <h3 className="text-xl font-semibold mb-4">Send us a message</h3>
@@ -72,7 +71,7 @@ const ContactUs: React.FC = () => {
                   animate={{ opacity: 1 }}
                   className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded"
                 >
-                  Thank you for your message! We'll get back to you soon.
+                  Thank you for your message! We&apos;ll get back to you soon.
                 </motion.div>
               ) : (
                 <form onSubmit={handleSubmit}>

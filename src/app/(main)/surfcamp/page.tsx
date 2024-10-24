@@ -64,7 +64,7 @@ const SurfCamp: React.FC = () => {
       >
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl font-bold mb-6 text-center">Surf Paradise Awaits</h2>
-          <p className="text-lg mb-6 text-gray-700">Immerse yourself in the ultimate surfing experience at our world-class camp. Whether you're a beginner catching your first wave or an experienced surfer looking to refine your skills, our expert instructors and pristine beaches provide the perfect setting for your surfing journey.</p>
+          <p className="text-lg mb-6 text-gray-700">Immerse yourself in the ultimate surfing experience at our world-class camp. Whether you&apos;re a beginner catching your first wave or an experienced surfer looking to refine your skills, our expert instructors and pristine beaches provide the perfect setting for your surfing journey.</p>
           <motion.ul className="list-disc pl-6 space-y-2" variants={slideIn}>
             <li>Expert instruction for all levels</li>
             <li>State-of-the-art equipment included</li>
@@ -161,7 +161,7 @@ const SurfCamp: React.FC = () => {
       >
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-4">Ready to Catch Your Wave?</h2>
-          <p className="text-xl mb-8">Don't miss out on the surfing adventure of a lifetime. Spots are filling up fast!</p>
+          <p className="text-xl mb-8">Don&apost miss out on the surfing adventure of a lifetime. Spots are filling up fast!</p>
           <motion.button
             className="px-8 py-3 bg-white text-blue-600 rounded-lg shadow-lg hover:bg-gray-100 transition duration-300"
             whileHover={{ scale: 1.05 }}

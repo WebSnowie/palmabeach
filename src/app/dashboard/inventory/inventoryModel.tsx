@@ -8,10 +8,10 @@ export interface Room {
     price: number;
   }
 
-interface EditRoomModalProps {
+  interface EditRoomModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (formData: {roomId: string, roomType: string, price: number}) => Promise<void>;
+    onSave: (updatedRoom: Room) => Promise<void>;
     room?: Room;
 }
 
@@ -54,7 +54,11 @@ export function EditRoomModal({ room, onClose, onSave, isOpen } : EditRoomModalP
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (formData.roomType && formData.price) {
-            await onSave(formData);
+            const updatedRoom: Room = {
+                ...formData,
+                roomId: parseInt(formData.roomId, 10),
+            };
+            await onSave(updatedRoom);
             onClose();
         } else {
             console.error("Form data is incomplete", formData);

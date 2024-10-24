@@ -16,6 +16,8 @@ export default function InventoryPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
 
     useEffect(() => {
         const fetchRooms = async () => {
@@ -59,6 +61,16 @@ export default function InventoryPage() {
         </div>
     );
     if (error) return <div className="text-red-500 text-center text-2xl mt-10">Error: {error}</div>;
+
+    const openEditModal = (room: Room) => {
+        setSelectedRoom(room);
+        setIsModalOpen(true);
+    };
+
+    const closeEditModal = () => {
+        setSelectedRoom(null);
+        setIsModalOpen(false);
+    };
 
     return (
         <motion.div 
@@ -112,7 +124,7 @@ export default function InventoryPage() {
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <button
                                             className="bg-blue-500 text-white px-4 py-2 rounded-md mr-2 hover:bg-blue-600 transition duration-300 ease-in-out"
-                                            onClick={() => setSelectedRoom(room)}
+                                            onClick={() => openEditModal(room)}
                                         >
                                             Edit
                                         </button>
@@ -132,8 +144,9 @@ export default function InventoryPage() {
             {selectedRoom && (
                 <EditRoomModal 
                     room={selectedRoom}
-                    onClose={() => setSelectedRoom(null)}
+                    onClose={closeEditModal}
                     onSave={handleEdit} 
+                    isOpen={isModalOpen}
                 />
             )}
         </motion.div>

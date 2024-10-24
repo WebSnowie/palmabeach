@@ -2,8 +2,19 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getRoomAvailability } from '@/server/actions/newBooking';
-import { Booking } from '@/types/types';
 import { motion } from 'framer-motion';
+
+
+export interface Booking {
+    bookingId: string;
+    startDate: Date;
+    endDate: Date;
+    customerName: string;
+    customerSurname: string;
+    customerPhone: string;
+    customerEmail: string;
+    roomId: number;
+}
 
 export default function DashboardPage() {
     const [recentBookings, setRecentBookings] = useState<Booking[]>([]);

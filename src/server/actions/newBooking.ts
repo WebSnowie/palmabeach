@@ -316,6 +316,12 @@ async function checkRoomAvailability(
                     bookings.endDate
                 )
                 .execute();
+
+            // Check if conflicts is empty
+            if (conflicts.length === 0) {
+                // Check the count of conflicts
+                return room.roomId;
+            }
         }
         return null;
     } catch (error) {

@@ -35,17 +35,23 @@ export async function deleteBooking(bookingId: string) {
             .execute();
 
         // Check if any rows were affected in either table
-        if (inventoryDeleteResult.rows.length === 0 && bookingDeleteResult.rows.length === 0) {
-            throw new Error('Booking not found in either table');
+        if (inventoryDeleteResult.rowCount === 0 && bookingDeleteResult.rowCount === 0) {
+            return {
+                success: false,
+                message: 'Booking not found in either table'
+            };
         }
 
         return { 
             success: true, 
-            message: `Booking deleted successfully. Inventory period ${inventoryDeleteResult.rows.length > 0 ? 'was' : 'was not'} deleted.`
+            message: `Booking deleted successfully. Inventory period ${inventoryDeleteResult.rowCount > 0 ? 'was' : 'was not'} deleted.`
         };
     } catch (error) {
-        console.error('Error deleting booking:', error);
-        throw new Error('Failed to delete booking');
+        return {
+            success: false,
+            message: 'Failed to delete booking',
+            error: error instanceof Error ? error.message : String(error)
+        };
     }
 }
 
@@ -135,10 +141,6 @@ export async function getCalenderDates() {
     }
 }
 
-
-
-
-
 // Function to get all rooms from the inventory
 export async function getRooms() {
     try {
@@ -198,14 +200,7 @@ export async function updateRoom(updatedRoom: UpdatedRoom) {
         throw new Error("updatedRoom is undefined");
     }
 
-    console.log("updatedRoom object:", updatedRoom);
-
     try {
-        console.log("Attempting to update room with the following data:");
-        console.log("roomId:", updatedRoom.roomId);
-        console.log("roomType:", updatedRoom.roomType);
-        console.log("price:", updatedRoom.price);
-
         await db
             .update(inventory)
             .set({
@@ -236,7 +231,6 @@ export async function deleteRoomAction({ roomId }: { roomId: number }) {
 
 
 export async function deleteRoom({ roomId }: { roomId: number }) {
-    console.log("Attempting to delete room with ID:", roomId); // Debugging log
     try {
         await db.delete(inventoryPeriods).where(eq(inventoryPeriods.room_id, roomId)).execute();
         await db.delete(bookings).where(eq(bookings.room_id, roomId)).execute();
@@ -284,12 +278,6 @@ async function checkRoomAvailability(
     endDate: Date
 ): Promise<number | null> {
     try {
-        // Log the search parameters for debugging
-        console.log('Checking availability for:', {
-            roomType,
-            startDate: startDate.toISOString(),
-            endDate: endDate.toISOString()
-        });
 
         // Find all rooms of the specified type
         const rooms = await db
@@ -300,10 +288,7 @@ async function checkRoomAvailability(
             .where(eq(inventory.room_type, roomType))
             .execute();
 
-        console.log(`Found ${rooms.length} rooms of type ${roomType}`);
-
         if (rooms.length === 0) {
-            console.log('No rooms found for the specified room type');
             return null;
         }
 
@@ -332,22 +317,15 @@ async function checkRoomAvailability(
                 )
                 .execute();
 
-            console.log(`Room ${room.roomId} has ${conflicts.length} conflicts`);
-
             // Check if conflicts is empty
             if (conflicts.length > 0) {
-                console.log('Conflicting bookings:', conflicts);
                 // Check the count of conflicts
                 const conflictCount = conflicts.reduce((acc, conflict) => acc + conflict.count, 0);
-                console.log(`Total conflicts for room ${room.roomId}: ${conflictCount}`);
             } else {
                 // If no conflicts found, return this room's ID
-                console.log(`Found available room: ${room.roomId}`);
                 return room.roomId;
             }
         }
-
-        console.log('No available rooms found after checking all rooms');
         return null;
     } catch (error) {
         console.error('Error in checkRoomAvailability:', error);

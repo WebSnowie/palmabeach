@@ -94,7 +94,6 @@ const Information = () => {
     setLoadedImages(prev => new Set(prev).add(imageSrc));
   };
 
-  const center = [-8.8833, 116.2833]; // [latitude, longitude] for Kuta, Lombok
 
   return (
     <div className="bg-gray-100">

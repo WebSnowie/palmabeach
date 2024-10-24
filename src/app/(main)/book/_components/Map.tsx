@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Map as LeafletMap } from 'leaflet';
 import L, {LatLngTuple} from 'leaflet';
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 
 // Define center coordinates
 const center: [number, number] = [-8.8833, 116.2833];
@@ -64,10 +64,6 @@ const customIcon = L.divIcon({
   iconAnchor: [12, 48],
   popupAnchor: [0, -48]
 });
-
-interface FlyToLocationProps {
-    center: LatLngTuple;
-  }
 
   const FlyToLocation: React.FC<{ center: [number, number] }> = ({ center }) => {
     const map = useMap();

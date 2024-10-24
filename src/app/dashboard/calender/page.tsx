@@ -121,7 +121,7 @@ export default function CalendarPage() {
                     onSelectEvent={handleEventClick}
                     min={minDate}
                     max={maxDate}
-                    eventPropGetter={(event) => ({
+                    eventPropGetter={() => ({
                         style: {
                             backgroundColor: '#9f7aea',
                             color: 'black', // Change the text color to black

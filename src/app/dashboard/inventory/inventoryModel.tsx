@@ -1,11 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Room, UpdatedRoom } from '@/types/types';
-
-interface EditRoomModalProps {
-    room: Room | null;
-    onClose: () => void;
-    onSave: (updatedRoom: UpdatedRoom) => void;
-  }
 
 export function EditRoomModal({ room, onClose, onSave }) {
     const [formData, setFormData] = useState({
@@ -21,15 +14,6 @@ export function EditRoomModal({ room, onClose, onSave }) {
         return null; // or return some fallback UI
     }
 
-useEffect(() => {
-    if (room) {
-        setFormData({
-            roomId: room.roomId,
-            roomType: room.roomType,
-            price: room.price,
-        });
-    }
-}, [room]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -47,6 +31,23 @@ useEffect(() => {
         }
     };
 
+
+    useEffect(() => {
+        if (room) {
+            setFormData({
+                roomId: room.roomId,
+                roomType: room.roomType,
+                price: room.price,
+            });
+        } else {
+            // Reset form data or perform any other action when room is not available
+            setFormData({
+                roomId: '',
+                roomType: '',
+                price: 0,
+            });
+        }
+    }, [room]);
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">

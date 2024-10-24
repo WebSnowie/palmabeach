@@ -4,7 +4,7 @@ import { db } from '@/drizzle/db';
 import { inventory, bookings, inventoryPeriods } from '@/drizzle/schema';
 import { sql, and, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
-import { Booking, Room, UpdatedRoom } from '@/types/types';
+import { Room, UpdatedRoom } from '@/types/types';
 
 // Schema for validating booking form data
 const BookingFormSchema = z.object({
@@ -160,7 +160,7 @@ export async function getRooms() {
 
 export async function createRoom({ roomNumber, roomType, price }: { roomNumber: number; roomType: string; price: number }) {
     try {
-        const result = await db.insert(inventory).values({
+        await db.insert(inventory).values({
             room_id: roomNumber,
             room_type: roomType,
             price_per_night: price,

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter} from 'next/navigation';
 import { CalendarProps } from '@/types/types';
 
 const CalendarDB: React.FC<CalendarProps> = ({ roomAvailability }) => {
@@ -64,12 +64,6 @@ const CalendarDB: React.FC<CalendarProps> = ({ roomAvailability }) => {
         return bookedRoomsCount >= totalRoomsOfType;
     };
     
-    // New function to check if any room type is available for a given date
-    const isAnyRoomTypeAvailable = (date: Date) => {
-        return ['single', 'double', 'deluxe', 'suite'].some(type => 
-            isRoomTypeAvailable(date, type)
-        );
-    };
     
     // Modified handleDateChange to automatically switch room type if necessary
     const handleDateChange = (dates: [Date | null, Date | null]) => {
@@ -79,7 +73,7 @@ const CalendarDB: React.FC<CalendarProps> = ({ roomAvailability }) => {
         }
     
         if (start && end) {
-            let currentDate = new Date(start);
+            const currentDate = new Date(start);
             const roomTypePriority = ['single', 'double', 'deluxe', 'suite'];
             let selectedType = roomType;
     

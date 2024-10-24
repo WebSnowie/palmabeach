@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useCallback } from 'react';
-import { Calendar, momentLocalizer, Views, Event } from 'react-big-calendar';
+import { Calendar, momentLocalizer, Views, Event, View } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { getRoomAvailability } from '@/server/actions/newBooking';
@@ -28,7 +28,7 @@ interface Room {
 }
 
 export default function CalendarPage() {
-    const [view, setView] = useState(Views.MONTH);
+    const [view, setView] = useState<View>(Views.MONTH);
     const [date, setDate] = useState(new Date());
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [rooms, setRooms] = useState<Room[]>([]);
@@ -36,7 +36,7 @@ export default function CalendarPage() {
     const [eventDetails, setEventDetails] = useState<Event | null>(null);
 
     const onNavigate = useCallback((newDate: Date) => setDate(newDate), []);
-    const onView = useCallback((newView: any) => setView(newView), []);
+    const onView = useCallback((newView: View) => setView(newView), []);
 
     useEffect(() => {
         const fetchData = async () => {

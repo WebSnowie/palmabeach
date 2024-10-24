@@ -1,26 +1,57 @@
 import React, { useState, useEffect } from "react";
 
-export function EditRoomModal({ room, onClose, onSave }) {
+
+
+export interface Room {
+    roomId: number;
+    roomType: string;
+    price: number;
+  }
+
+interface EditRoomModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSave: (formData: {roomId: string, roomType: string, price: number}) => Promise<void>;
+    room?: Room;
+}
+
+
+export function EditRoomModal({ room, onClose, onSave, isOpen } : EditRoomModalProps) {
     const [formData, setFormData] = useState({
-        roomId: room.roomId,
-        roomType: room.roomType,
-        price: room.price,
-    });
+        roomId: '',
+        roomType: '',
+        price: 0,
+      });
+
+
+    useEffect(() => {
+        if (room) {
+          setFormData({
+            roomId: room.roomId.toString(),
+            roomType: room.roomType,
+            price: room.price,
+          });
+        } else {
+          // Reset form when no room is provided (for creating new room)
+          setFormData({
+            roomId: '',
+            roomType: '',
+            price: 0,
+          });
+        }
+      }, [room]);
+    
+      if (!isOpen) return null;
+
 
     const roomTypes = ['Single', 'Double', 'Deluxe', 'Suite']; // Available room types
 
-    if (!room) {
-        console.error("Room prop is undefined");
-        return null; // or return some fallback UI
-    }
-
-
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (formData.roomType && formData.price) {
             await onSave(formData);
@@ -30,24 +61,6 @@ export function EditRoomModal({ room, onClose, onSave }) {
             // Handle the error, maybe show a message to the user
         }
     };
-
-
-    useEffect(() => {
-        if (room) {
-            setFormData({
-                roomId: room.roomId,
-                roomType: room.roomType,
-                price: room.price,
-            });
-        } else {
-            // Reset form data or perform any other action when room is not available
-            setFormData({
-                roomId: '',
-                roomType: '',
-                price: 0,
-            });
-        }
-    }, [room]);
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">

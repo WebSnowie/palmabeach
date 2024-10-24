@@ -2,7 +2,7 @@
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Map as LeafletMap } from 'leaflet';
-import L, {LatLngTuple} from 'leaflet';
+import L from 'leaflet';
 import { useEffect, useRef } from 'react';
 
 // Define center coordinates

@@ -20,8 +20,6 @@ const YourComponent = () => {
 
     fetchRoomAvailability();
   }, []);
-
-  console.log(roomAvailability);
   
   return (
     <>

@@ -9,7 +9,6 @@ import { CalendarRoom } from '@/types/types';
 const YourComponent = () => {
 
   const [roomAvailability, setRoomAvailability] = useState<CalendarRoom[]>([]);
-  console.log(roomAvailability);
   useEffect(() => {
     const fetchRoomAvailability = async () => {
       try {
@@ -23,8 +22,6 @@ const YourComponent = () => {
 
     fetchRoomAvailability();
   }, []);
-
-  console.log(roomAvailability);
 
   return (
     <>

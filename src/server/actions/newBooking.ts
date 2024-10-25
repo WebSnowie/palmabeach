@@ -145,6 +145,35 @@ export async function getCalenderDates(): Promise<CalendarRoom[]> {
 }
 
 
+export async function getBookingDetails(slug: string) {
+    try {
+        const result = await db.select()
+            .from(bookings)
+            .where(eq(bookings.bookingId, slug))
+            .execute();
+
+        if (result.length > 0) {
+            const booking = result[0];
+            return { 
+                success: true, 
+                booking: {
+                    bookingId: booking.bookingId,
+                    room_id: booking.room_id,
+                    startDate: booking.startDate.toISOString(),
+                    endDate: booking.endDate.toISOString(),
+                    customerEmail: booking.customerEmail,
+                    customerName: booking.customerName,
+                    customerSurname: booking.customerSurname,
+                    customerPhone: booking.customerPhone,
+                }
+            };
+        } else {
+            return { success: false, error: 'Booking not found' };
+        }
+    } catch (error) {
+        return { success: false, error: 'Failed to fetch booking details' };
+    }
+}
 
 // Function to get all rooms from the inventory
 export async function getRooms() {

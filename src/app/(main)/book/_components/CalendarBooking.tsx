@@ -143,7 +143,7 @@ const Calendar: React.FC<CalendarProps> = ({ roomAvailability }) => {
             toast.error("Please select valid dates");
             return;
         }
-
+    
         try {
             setIsSubmitting(true);
             
@@ -155,12 +155,12 @@ const Calendar: React.FC<CalendarProps> = ({ roomAvailability }) => {
             formDataToSubmit.set('surname', formData.surname);
             formDataToSubmit.set('email', formData.email);
             formDataToSubmit.set('phone', formData.phone);
-
+    
             const response = await createBooking(formDataToSubmit);
-
+    
             if (response.success) {
                 toast.success('Booking created successfully!');
-                router.push(`/booking-confirmation/${response.bookingId}`);
+                router.push(`/book/confirmation/${response.bookingId}`);
             } else {
                 toast.error(response.error || 'Failed to create booking');
             }

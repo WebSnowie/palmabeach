@@ -1,6 +1,7 @@
 "use client"
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useState } from 'react';
 import { Map as LeafletMap } from 'leaflet';
 import L from 'leaflet';
 import { useEffect, useRef } from 'react';
@@ -65,58 +66,81 @@ const customIcon = L.divIcon({
   popupAnchor: [0, -48]
 });
 
-  const FlyToLocation: React.FC<{ center: [number, number] }> = ({ center }) => {
-    const map = useMap();
-  
-    useEffect(() => {
-      const flyToSequence = async () => {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        if (map) {
-          map.flyTo([center[0], center[1]], 5, {
-            duration: 10
-          });
-        }
-  
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        if (map) {
-          map.flyTo(center, 13, {
-            duration: 10
-          });
-        }
-      };
-  
-      flyToSequence();
-    }, [map, center]);
-  
-    return null;
-  };
+const FlyToLocation: React.FC<{ center: [number, number]; isVisible: boolean }> = ({ center, isVisible }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!isVisible) return; // Don't start the animation if the map isn't visible
+
+    const flyToSequence = async () => {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      if (map) {
+        map.flyTo([center[0], center[1]], 5, {
+          duration: 10
+        });
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      if (map) {
+        map.flyTo(center, 13, {
+          duration: 10
+        });
+      }
+    };
+
+    flyToSequence();
+  }, [map, center, isVisible]);
+
+  return null;
+};
 
 
 
 
 
- const Map = () => {
-  const mapRef = useRef<LeafletMap | null>(null);
+const Map = () => {
+  const mapRef = useRef<HTMLDivElement>(null);
+  const [isMapVisible, setIsMapVisible] = useState(false);
+
   useEffect(() => {
     if (mapRef.current) {
-      // You can access the map instance here if needed
-      console.log('Map instance:', mapRef.current);
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          // Update state when map visibility changes
+          setIsMapVisible(entry.isIntersecting);
+        },
+        {
+          root: null,
+          rootMargin: '0px',
+          threshold: 0.5, // Trigger when 50% of the map is visible
+        }
+      );
+
+      observer.observe(mapRef.current);
+
+      // Cleanup function
+      return () => {
+        if (mapRef.current) {
+          observer.unobserve(mapRef.current);
+        }
+      };
     }
   }, []);
+
   return (
     <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold mb-12 text-center text-gray-800">Our Location</h2>
-        <div style={{ height: '600px', width: '100%' }}>
-          <MapContainer center={[0, 0]} zoom={2} style={{ height: '100%', width: '100%', zIndex:9} } ref={mapRef}>
+        <div ref={mapRef} style={{ height: '600px', width: '100%' }}>
+          <MapContainer center={[0, 0]} zoom={2} style={{ height: '100%', width: '100%', zIndex: 9 }}>
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             />
             <Marker position={center} icon={customIcon}/>
-            <FlyToLocation center={center} />
+            <FlyToLocation center={center} isVisible={isMapVisible} />
           </MapContainer>
         </div>
         <div className="mt-8 text-center">
@@ -127,6 +151,7 @@ const customIcon = L.divIcon({
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
+
 export default Map;

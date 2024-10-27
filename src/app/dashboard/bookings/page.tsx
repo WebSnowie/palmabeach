@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { getRoomAvailability, deleteBooking, updateBooking } from '@/server/actions/newBooking';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaEdit, FaTrash } from 'react-icons/fa';
@@ -76,18 +76,18 @@ export default function BookingsPage() {
         setSearchTerm(e.target.value);
     };
 
-    const fetchBookings = async () => {
+    const fetchBookings = useCallback(async () => {
         try {
-            setLoading(true);
-            const data: Bookings[] = await getRoomAvailability();
-            const sortedData = data.sort(sortBookingsByStartDate);
-            setBookings(sortedData);
+          setLoading(true);
+          const data: Bookings[] = await getRoomAvailability();
+          const sortedData = data.sort(sortBookingsByStartDate);
+          setBookings(sortedData);
         } catch (err) {
-            setError('Failed to fetch bookings');
+          setError('Failed to fetch bookings');
         } finally {
-            setLoading(false);
+          setLoading(false);
         }
-    };
+      }, []);
     
     useEffect(() => {
         fetchBookings();

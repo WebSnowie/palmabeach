@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useRouter} from 'next/navigation';
@@ -28,7 +28,7 @@ useEffect(() => {
 
   fetchRoomAvailability();
 }, []);
-const isRoomTypeAvailable = (date: Date, type: string) => {
+const isRoomTypeAvailable = useCallback((date: Date, type: string) => {
     const room = roomAvailability.find(room => room.roomType === type);
     if (!room) return false;
     
@@ -39,8 +39,8 @@ const isRoomTypeAvailable = (date: Date, type: string) => {
         (date >= new Date(booking.startDate) && date <= new Date(booking.endDate)) ||
         (nextDay >= new Date(booking.startDate) && nextDay <= new Date(booking.endDate))
     );
-};
-
+  }, [roomAvailability]);
+  
     useEffect(() => {
         // Reset state on component mount or when roomAvailability changes
         if (roomAvailability.length > 0) {

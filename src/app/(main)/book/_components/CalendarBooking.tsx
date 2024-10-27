@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';  // Import Framer Motion
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -68,18 +68,18 @@ const CalendarBooking = () => {
     };
 
 
-    const isRoomTypeAvailable = (date: Date, type: string) => {
+    const isRoomTypeAvailable = useCallback((date: Date, type: string) => {
         const roomsOfType = roomAvailability.filter(room => room.roomType === type);
         if (roomsOfType.length === 0) return false;
         
         // Check if at least one room of this type is available
         return roomsOfType.some(room => 
-            !room.bookings.some(booking => 
-                date >= new Date(booking.startDate) && 
-                date <= new Date(booking.endDate)
-            )
+          !room.bookings.some(booking => 
+            date >= new Date(booking.startDate) && 
+            date <= new Date(booking.endDate)
+          )
         );
-    };
+      }, [roomAvailability]);
 
     useEffect(() => {
         if (roomAvailability.length > 0) {

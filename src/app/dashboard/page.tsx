@@ -65,7 +65,7 @@ export default function DashboardPage() {
                 transition={{ delay: 0.2 }}
             >
                 <h2 className="text-2xl font-semibold mb-4 text-purple-400">Quick Actions</h2>
-                <Link href="/dashboard/bookings/new" className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-105">
+                <Link href="/book" className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-105">
                     Add New Booking
                 </Link>
             </motion.div>

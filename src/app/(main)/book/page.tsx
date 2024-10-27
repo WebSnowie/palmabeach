@@ -1,30 +1,22 @@
-'use client';
-import { useState, useEffect } from 'react';
-import { getCalenderDates } from '@/server/actions/newBooking';
-import { CalendarRoom } from '@/types/types';
-import BookingPage from "./_components/BookingPage"
+import dynamic from 'next/dynamic';
+
+const LoadingSpinner = () => (
+  <div className="fixed inset-0 flex items-center justify-center bg-gray-100 bg-opacity-75 z-50">
+    <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
+  </div>
+);
+
+const CalendarBooking = dynamic(() => import('./_components/CalendarBooking').then(mod => mod.default), {
+  ssr: false,
+  loading: () => <LoadingSpinner /> // Add a loading component
+});
 
 const YourComponent = () => {
-  const [roomAvailability, setRoomAvailability] = useState<CalendarRoom[]>([]);
-
-  useEffect(() => {
-    const fetchRoomAvailability = async () => {
-      try {
-        const data = await getCalenderDates();
-        setRoomAvailability(data);
-      } catch (error) {
-        console.error('Error fetching room availability:', error);
-        setRoomAvailability([]);
-      }
-    };
-
-    fetchRoomAvailability();
-  }, []);
-  
+    
   return (
     <>
-      <section className="min-h-screen flex items-center justify-start mt-10">
-        <BookingPage roomAvailability={roomAvailability}/>
+      <section className="min-h-screen flex items-center justify-start">
+        <CalendarBooking />
       </section>
     </>
   );

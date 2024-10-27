@@ -12,7 +12,7 @@ const Map = dynamic(() => import('./Map').then((mod) => mod.default), {
   ssr: false,
   loading: () => <p>Loading map...</p>
 });
-const RoomDisplay = dynamic(() => import('./RoomDisplay').then((mod) => mod.default), {
+const RoomDisplay = dynamic(() => import('../book/_components/RoomDisplay').then((mod) => mod.default), {
   ssr: false,
   loading: () => <p>Loading rooms...</p>
 });

@@ -8,7 +8,9 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import RoomSelection from './RoomSelection';
 import { createBooking } from '@/server/actions/newBooking';
 import { toast } from 'sonner';
-import { CalendarProps } from '@/types/types';
+import { CalendarRoom } from '@/types/types';
+import { getCalenderDates } from '@/server/actions/newBooking';
+
 
 // Motion Variants
 const containerVariants = {
@@ -16,11 +18,12 @@ const containerVariants = {
   visible: { opacity: 1, scale: 1, transition: { duration: 0.5 } },
 };
 
-const Calendar: React.FC<CalendarProps> = ({ roomAvailability }) => {
+const CalendarBooking = () => {
     // State management
     const [startDate, setStartDate] = useState<Date | undefined>(undefined);
     const [endDate, setEndDate] = useState<Date | undefined>(undefined);
     const [roomType, setRoomType] = useState<string>('');
+    const [roomAvailability, setRoomAvailability] = useState<CalendarRoom[]>([]);
     const [formData, setFormData] = useState({
         name: '',
         surname: '',
@@ -32,6 +35,20 @@ const Calendar: React.FC<CalendarProps> = ({ roomAvailability }) => {
     // Hooks
     const router = useRouter();
     const searchParams = useSearchParams();
+
+    useEffect(() => {
+      const fetchRoomAvailability = async () => {
+        try {
+          const data = await getCalenderDates();
+          setRoomAvailability(data);
+        } catch (error) {
+          console.error('Error fetching room availability:', error);
+          setRoomAvailability([]);
+        }
+      };
+  
+      fetchRoomAvailability();
+    }, []);
 
     // Date availability checking
     const isDateBooked = (date: Date) => {
@@ -185,12 +202,12 @@ const Calendar: React.FC<CalendarProps> = ({ roomAvailability }) => {
 
     return (
         <motion.div 
-            className="flex justify-center items-center min-h-screen bg-gray-100 w-full"
+            className="flex justify-center items-center min-h-screen bg-gray-100 w-full mt-14"
             initial="hidden"
             animate="visible"
             variants={containerVariants}
         >
-            <div className="flex w-full max-w-7xl gap-10 p-4">
+            <div className="flex w-full max-w-7xl gap-10 p-4 mt-14" >
                 {/* Booking Form Section */}
                 <motion.div 
                     className="flex-1 max-w-md p-6 bg-white rounded-lg shadow-md"
@@ -304,5 +321,4 @@ const Calendar: React.FC<CalendarProps> = ({ roomAvailability }) => {
         </motion.div>
     );
 };
-
-export default Calendar;
+export default CalendarBooking;

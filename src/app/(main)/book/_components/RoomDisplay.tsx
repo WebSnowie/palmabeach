@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence  } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { rooms} from "../book/_components/_data/data"
+import { rooms} from "./_data/data"
 import Image from 'next/image';
 
 

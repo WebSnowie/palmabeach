@@ -7,7 +7,14 @@ import { getCalenderDates } from '@/server/actions/newBooking';
 import { CalendarRoom } from '@/types/types';
 
 
-const [roomAvailability, setRoomAvailability] = useState<CalendarRoom[]>([]);
+
+const CalendarDB = () => {
+    const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+    const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+    const [roomType, setRoomType] = useState<string>('');
+    const router = useRouter();
+    
+    const [roomAvailability, setRoomAvailability] = useState<CalendarRoom[]>([]);
 useEffect(() => {
   const fetchRoomAvailability = async () => {
     try {
@@ -21,14 +28,6 @@ useEffect(() => {
 
   fetchRoomAvailability();
 }, []);
-
-
-const CalendarDB = () => {
-    const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-    const [endDate, setEndDate] = useState<Date | undefined>(undefined);
-    const [roomType, setRoomType] = useState<string>('');
-    const router = useRouter();
-    
 
     useEffect(() => {
         // Reset state on component mount or when roomAvailability changes

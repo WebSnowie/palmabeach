@@ -5,8 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import DatePicker from "react-datepicker";
 import { PaginationProps } from '@/types/types';
-import { format, parse } from 'date-fns';
-import { isWithinInterval } from 'date-fns/fp';
+import { format } from 'date-fns';
 import "react-datepicker/dist/react-datepicker.css";
 
 

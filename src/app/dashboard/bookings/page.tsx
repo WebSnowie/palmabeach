@@ -245,11 +245,40 @@ export default function BookingsPage() {
                         className="w-full p-2 rounded bg-gray-700 text-white"
                         placeholder="Customer Surname"
                     />
+                    <input
+                        type="email"
+                        name="customerEmail"
+                        value={editingBooking.customerEmail}
+                        onChange={handleInputChange}
+                        className="w-full p-2 rounded bg-gray-700 text-white"
+                        placeholder="Customer Email"
+                    />
+                    <input
+                        type="tel"
+                        name="customerPhone"
+                        value={editingBooking.customerPhone}
+                        onChange={handleInputChange}
+                        className="w-full p-2 rounded bg-gray-700 text-white"
+                        placeholder="Customer Phone"
+                    />
+                    <button
+                        onClick={handleSave}
+                        className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    >
+                        Save Changes
+                    </button>
+                    <button
+                        onClick={() => setIsEditModalOpen(false)}
+                        className="w-full p-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                    >
+                        Cancel
+                    </button>
                 </div>
             </motion.div>
         </motion.div>
     )}
 </AnimatePresence>
+
         </motion.div>
     );
 }

@@ -28,6 +28,18 @@ useEffect(() => {
 
   fetchRoomAvailability();
 }, []);
+const isRoomTypeAvailable = (date: Date, type: string) => {
+    const room = roomAvailability.find(room => room.roomType === type);
+    if (!room) return false;
+    
+    const nextDay = new Date(date);
+    nextDay.setDate(nextDay.getDate() + 1);
+    
+    return !room.bookings.some(booking => 
+        (date >= new Date(booking.startDate) && date <= new Date(booking.endDate)) ||
+        (nextDay >= new Date(booking.startDate) && nextDay <= new Date(booking.endDate))
+    );
+};
 
     useEffect(() => {
         // Reset state on component mount or when roomAvailability changes
@@ -51,20 +63,8 @@ useEffect(() => {
             }
         }
     
-    }, [roomAvailability]);
+    }, [roomAvailability, isRoomTypeAvailable]);
     
-    const isRoomTypeAvailable = (date: Date, type: string) => {
-        const room = roomAvailability.find(room => room.roomType === type);
-        if (!room) return false;
-        
-        const nextDay = new Date(date);
-        nextDay.setDate(nextDay.getDate() + 1);
-        
-        return !room.bookings.some(booking => 
-            (date >= new Date(booking.startDate) && date <= new Date(booking.endDate)) ||
-            (nextDay >= new Date(booking.startDate) && nextDay <= new Date(booking.endDate))
-        );
-    };
     
     const isDateFullyBooked = (date: Date) => {
         const roomsOfSelectedType = roomAvailability.filter(room => room.roomType === roomType);

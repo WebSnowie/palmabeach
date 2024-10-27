@@ -19,17 +19,20 @@ export default function RoomDisplay() {
         },
         { threshold: 0.1 }
       );
-  
-      if (sectionRef.current) {
-        observer.observe(sectionRef.current);
+    
+      const currentRef = sectionRef.current;
+    
+      if (currentRef) {
+        observer.observe(currentRef);
       }
-  
+    
       return () => {
-        if (sectionRef.current) {
-          observer.unobserve(sectionRef.current);
+        if (currentRef) {
+          observer.unobserve(currentRef);
         }
       };
     }, []);
+    
   
     useEffect(() => {
       let interval: NodeJS.Timeout | undefined;
@@ -41,7 +44,7 @@ export default function RoomDisplay() {
       return () => {
         if (interval) clearInterval(interval);
       };
-    }, [isVisible, rooms.length]);
+    }, [isVisible]);
     
     const variants = {
       enter: (direction: number) => {

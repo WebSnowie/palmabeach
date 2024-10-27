@@ -114,7 +114,8 @@ const CalendarBooking = () => {
             if (checkInDate) setStartDate(new Date(checkInDate));
             if (checkOutDate) setEndDate(new Date(checkOutDate));
         }
-    }, [roomAvailability, searchParams]);
+    }, [roomAvailability, searchParams, isRoomTypeAvailable]);
+    
 
     const areDatesAvailable = (start: Date, end: Date): boolean => {
         const currentDate = new Date(start);

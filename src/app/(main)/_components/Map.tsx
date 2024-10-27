@@ -105,6 +105,8 @@ const Map = () => {
 
   useEffect(() => {
     if (mapRef.current) {
+      const mapElement = mapRef.current; // Capture the current value
+  
       const observer = new IntersectionObserver(
         ([entry]) => {
           // Update state when map visibility changes
@@ -116,14 +118,12 @@ const Map = () => {
           threshold: 0.5, // Trigger when 50% of the map is visible
         }
       );
-
-      observer.observe(mapRef.current);
-
+  
+      observer.observe(mapElement);
+  
       // Cleanup function
       return () => {
-        if (mapRef.current) {
-          observer.unobserve(mapRef.current);
-        }
+        observer.unobserve(mapElement);
       };
     }
   }, []);

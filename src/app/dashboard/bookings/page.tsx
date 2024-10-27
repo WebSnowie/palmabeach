@@ -76,10 +76,6 @@ export default function BookingsPage() {
         setSearchTerm(e.target.value);
     };
 
-    useEffect(() => {
-        fetchBookings();
-    }, []);
-
     const fetchBookings = async () => {
         try {
             setLoading(true);
@@ -92,6 +88,11 @@ export default function BookingsPage() {
             setLoading(false);
         }
     };
+    
+    useEffect(() => {
+        fetchBookings();
+    }, [fetchBookings]);
+
 
 const getUnavailableDates = (roomType: string, currentBookingId: string): { start: Date; end: Date }[] => {
     return bookings

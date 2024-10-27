@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { FaCalendarAlt, FaBed, FaUser, FaEnvelope, FaPhone, FaEdit, FaSave, FaPaperPlane } from 'react-icons/fa';
 import { useParams } from 'next/navigation';
 import { getBookingDetails, updateBooking } from '@/server/actions/newBooking';
@@ -29,7 +29,7 @@ const itemVariants = {
     },
   },
 };
-const InfoItem: React.FC<{ icon: React.ReactNode; label: string; value: string; variants: any }> = ({ icon, label, value, variants }) => (
+const InfoItem: React.FC<{ icon: React.ReactNode; label: string; value: string; variants: Variants }> = ({ icon, label, value, variants }) => (
   <motion.div className="flex items-center" variants={variants}>
       <div className="text-blue-500 mr-4 text-xl">{icon}</div>
       <div className="flex-grow">
@@ -49,7 +49,7 @@ const EditableInfoItem: React.FC<{
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   name: string;
   surnameName?: string;
-  variants: any;
+  variants: Variants;
 }> = ({ icon, label, value, isEditing, editValue, editSurnameValue, onChange, name, surnameName, variants }) => (
   <motion.div className="flex items-center" variants={variants}>
       <div className="text-blue-500 mr-4 text-xl">{icon}</div>

@@ -1,7 +1,7 @@
 'use client';
 import Image from 'next/image';
 import CalendarClient from "../../app/(main)/_components/CalendarDB";
-import Information from './book/_components/Information';
+import Information from './_components/Information';
 import { useEffect, useState } from 'react';
 import { getCalenderDates } from '@/server/actions/newBooking';
 import { CalendarRoom } from '@/types/types';

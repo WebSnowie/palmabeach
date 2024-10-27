@@ -1,12 +1,11 @@
 'use client';
-
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence  } from 'framer-motion';
 import Image from 'next/image';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/blur.css';
 import dynamic from 'next/dynamic';
-import {rooms, amenities, activities} from "./_data/data"
+import {rooms, amenities, activities} from "../book/_components/_data/data"
 import { useRouter } from 'next/navigation';
 
 

@@ -29,7 +29,7 @@ export default function DashboardPage() {
                 new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
             );
 
-            setRecentBookings(sortedBookings.slice(0, 10));
+            setRecentBookings(sortedBookings.slice(0, 5));
 
             const today = new Date();
             const tomorrow = new Date(today);

@@ -4,17 +4,7 @@ import { motion } from 'framer-motion';
 import { FaCalendarAlt, FaBed, FaUser, FaEnvelope, FaPhone, FaEdit, FaSave, FaPaperPlane } from 'react-icons/fa';
 import { useParams } from 'next/navigation';
 import { getBookingDetails, updateBooking } from '@/server/actions/newBooking';
-
-interface BookingDetails {
-  bookingId: string;
-  room_id: number;
-  startDate: string;
-  endDate: string;
-  customerEmail: string;
-  customerName: string;
-  customerSurname: string;
-  customerPhone: string;
-}
+import { BookingDetails } from '@/types/types';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -183,7 +173,7 @@ const BookingConfirmation: React.FC = () => {
 
   return (
     <motion.div
-        className="min-h-screen bg-gradient-to-br from-blue-100 to-indigo-200 flex items-center justify-center p-4"
+        className="min-h-screen bg-gradient-to-br from-blue-100 to-indigo-200 flex items-center justify-center p-4 mt-16"
         initial="hidden"
         animate="visible"
         variants={containerVariants}

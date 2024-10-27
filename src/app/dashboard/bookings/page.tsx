@@ -4,24 +4,40 @@ import { getRoomAvailability, deleteBooking, updateBooking } from '@/server/acti
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import { FaEdit, FaTrash } from 'react-icons/fa';
-
-interface Booking {
-    bookingId: string;
-    roomType: string;
-    startDate: Date;
-    endDate: Date;
-    customerName: string;
-    customerSurname: string;
-    customerEmail: string;
-    customerPhone: string;
-}
+import { PaginationProps, Bookings } from '@/types/types';
 
 export default function BookingsPage() {
-    const [bookings, setBookings] = useState<Booking[]>([]);
+    const [bookings, setBookings] = useState<Bookings[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
+    const [editingBooking, setEditingBooking] = useState<Bookings | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [bookingsPerPage] = useState(8);
+
+
+    const sortBookingsByStartDate = (a: Bookings, b: Bookings) => {
+        return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+      };
+
+    const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
+    const filteredBookings = bookings
+    .filter(booking => 
+      booking.bookingId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      `${booking.customerName} ${booking.customerSurname}`.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort(sortBookingsByStartDate);
+
+    const indexOfLastBooking = currentPage * bookingsPerPage;
+    const indexOfFirstBooking = indexOfLastBooking - bookingsPerPage;
+    const currentBookings = filteredBookings.slice(indexOfFirstBooking, indexOfLastBooking);
+
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchTerm(e.target.value);
+    };
+
 
     useEffect(() => {
         fetchBookings();
@@ -30,8 +46,9 @@ export default function BookingsPage() {
     const fetchBookings = async () => {
         try {
             setLoading(true);
-            const data: Booking[] = await getRoomAvailability();
-            setBookings(data);
+            const data: Bookings[] = await getRoomAvailability();
+            const sortedData = data.sort(sortBookingsByStartDate);
+            setBookings(sortedData);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -39,7 +56,7 @@ export default function BookingsPage() {
         }
     };
 
-    const handleEdit = (booking: Booking) => {
+    const handleEdit = (booking: Bookings) => {
         setEditingBooking({ ...booking });
         setIsEditModalOpen(true);
     };
@@ -92,7 +109,30 @@ export default function BookingsPage() {
             </div>
         );
     }
-
+    const Pagination: React.FC<PaginationProps> = ({ bookingsPerPage, totalBookings, paginate, currentPage }) => {
+        const pageNumbers: number[] = [];
+    
+        for (let i = 1; i <= Math.ceil(totalBookings / bookingsPerPage); i++) {
+            pageNumbers.push(i);
+        }
+        return (
+            <nav className="mt-4">
+                <ul className="flex justify-center">
+                    {pageNumbers.map(number => (
+                        <li key={number} className="mx-1">
+                            <button
+                                onClick={() => paginate(number)}
+                                className={`px-3 py-1 rounded ${currentPage === number ? 'bg-blue-500 text-white' : 'bg-gray-700 text-gray-300'}`}
+                            >
+                                {number}
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+            </nav>
+        );
+    };
+        
     return (
         <motion.div 
             initial={{ opacity: 0 }}
@@ -101,6 +141,15 @@ export default function BookingsPage() {
             className="min-h-screen bg-gray-900 text-white p-8"
         >
             <h1 className="text-4xl font-bold mb-8 text-center text-blue-400">Bookings</h1>
+            <div className="mb-4">
+                <input
+                    type="text"
+                    placeholder="Search by Booking ID or Customer Name"
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    className="w-full p-2 rounded bg-gray-700 text-white"
+                />
+            </div>
             <div className="overflow-x-auto">
                 <motion.table 
                     className="min-w-full bg-gray-800 shadow-md rounded-lg overflow-hidden"
@@ -121,7 +170,7 @@ export default function BookingsPage() {
                         </tr>
                     </thead>
                     <tbody>
-                        {bookings.map((booking, index) => (
+                        {currentBookings.map((booking, index) => (
                             <motion.tr 
                                 key={booking.bookingId} 
                                 className="hover:bg-gray-700 transition-colors duration-200"
@@ -142,89 +191,65 @@ export default function BookingsPage() {
                                         className="mr-2 text-blue-400 hover:text-blue-300"
                                     >
                                         <FaEdit />
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(booking.bookingId)}
-                                        className="text-red-400 hover:text-red-300"
-                                    >
-                                        <FaTrash />
-                                    </button>
-                                </td>
-                            </motion.tr>
-                        ))}
-                    </tbody>
-                </motion.table>
-            </div>
+</button>
+<button
+    onClick={() => handleDelete(booking.bookingId)}
+    className="text-red-400 hover:text-red-300"
+>
+    <FaTrash />
+</button>
+</td>
+</motion.tr>
+))}
+</tbody>
+</motion.table>
+</div>
+<Pagination
+    bookingsPerPage={bookingsPerPage}
+    totalBookings={filteredBookings.length}
+    paginate={paginate}
+    currentPage={currentPage}
+/>
 
-            <AnimatePresence>
-                {isEditModalOpen && editingBooking && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50"
-                    >
-                        <motion.div
-                            initial={{ y: 50, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            exit={{ y: 50, opacity: 0 }}
-                            transition={{ duration: 0.3 }}
-                            className="bg-gray-800 p-8 rounded-2xl shadow-2xl max-w-md w-full"
-                        >
-                            <h2 className="text-2xl font-bold mb-4 text-blue-400">Edit Booking</h2>
-                            <div className="space-y-4">
-                                <input
-                                    type="text"
-                                    name="customerName"
-                                    value={editingBooking.customerName}
-                                    onChange={handleInputChange}
-                                    className="w-full p-2 rounded bg-gray-700 text-white"
-                                    placeholder="Customer Name"
-                                />
-                                <input
-                                    type="text"
-                                    name="customerSurname"
-                                    value={editingBooking.customerSurname}
-                                    onChange={handleInputChange}
-                                    className="w-full p-2 rounded bg-gray-700 text-white"
-                                    placeholder="Customer Surname"
-                                />
-                                <input
-                                    type="email"
-                                    name="customerEmail"
-                                    value={editingBooking.customerEmail}
-                                    onChange={handleInputChange}
-                                    className="w-full p-2 rounded bg-gray-700 text-white"
-                                    placeholder="Email"
-                                />
-                                <input
-                                    type="tel"
-                                    name="customerPhone"
-                                    value={editingBooking.customerPhone}
-                                    onChange={handleInputChange}
-                                    className="w-full p-2 rounded bg-gray-700 text-white"
-                                    placeholder="Phone"
-                                />
-                            </div>
-                            <div className="mt-6 flex justify-end space-x-4">
-                                <button
-                                    onClick={() => setIsEditModalOpen(false)}
-                                    className="bg-gray-600 text-white p-2 rounded hover:bg-gray-700 transition-colors duration-200"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={handleSave}
-                                    className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition-colors duration-200"
-                                >
-                                    Save Changes
-                                </button>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+<AnimatePresence>
+    {isEditModalOpen && editingBooking && (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50"
+        >
+            <motion.div
+                initial={{ y: 50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 50, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="bg-gray-800 p-8 rounded-2xl shadow-2xl max-w-md w-full"
+            >
+                <h2 className="text-2xl font-bold mb-4 text-blue-400">Edit Booking</h2>
+                <div className="space-y-4">
+                    <input
+                        type="text"
+                        name="customerName"
+                        value={editingBooking.customerName}
+                        onChange={handleInputChange}
+                        className="w-full p-2 rounded bg-gray-700 text-white"
+                        placeholder="Customer Name"
+                    />
+                    <input
+                        type="text"
+                        name="customerSurname"
+                        value={editingBooking.customerSurname}
+                        onChange={handleInputChange}
+                        className="w-full p-2 rounded bg-gray-700 text-white"
+                        placeholder="Customer Surname"
+                    />
+                </div>
+            </motion.div>
+        </motion.div>
+    )}
+</AnimatePresence>
         </motion.div>
     );
 }

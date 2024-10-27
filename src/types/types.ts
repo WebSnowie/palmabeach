@@ -10,6 +10,28 @@ export interface Room {
     price: number;
   }
 
+  export interface BookingDetails {
+    bookingId: string;
+    room_id: number;
+    startDate: string;
+    endDate: string;
+    customerEmail: string;
+    customerName: string;
+    customerSurname: string;
+    customerPhone: string;
+  }
+
+  export interface Bookings {
+    bookingId: string;
+    roomType: string;
+    startDate: Date;
+    endDate: Date;
+    customerName: string;
+    customerSurname: string;
+    customerEmail: string;
+    customerPhone: string;
+}
+
   export interface Booking {
     bookingId: string;
     startDate: Date;
@@ -41,3 +63,10 @@ export type CalendarBooking  = {
   startDate: Date;
   endDate: Date;
 };
+
+export interface PaginationProps {
+  bookingsPerPage: number;
+  totalBookings: number;
+  paginate: (pageNumber: number) => void;
+  currentPage: number;
+}

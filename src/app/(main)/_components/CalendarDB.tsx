@@ -1,16 +1,34 @@
 "use client";
-
 import React, { useState, useEffect } from 'react';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useRouter} from 'next/navigation';
-import { CalendarProps } from '@/types/types';
+import { getCalenderDates } from '@/server/actions/newBooking';
+import { CalendarRoom } from '@/types/types';
 
-const CalendarDB: React.FC<CalendarProps> = ({ roomAvailability }) => {
+
+const [roomAvailability, setRoomAvailability] = useState<CalendarRoom[]>([]);
+useEffect(() => {
+  const fetchRoomAvailability = async () => {
+    try {
+      const data = await getCalenderDates();
+      setRoomAvailability(data);
+    } catch (error) {
+      console.error('Error fetching room availability:', error);
+      setRoomAvailability([]);
+    }
+  };
+
+  fetchRoomAvailability();
+}, []);
+
+
+const CalendarDB = () => {
     const [startDate, setStartDate] = useState<Date | undefined>(undefined);
     const [endDate, setEndDate] = useState<Date | undefined>(undefined);
     const [roomType, setRoomType] = useState<string>('');
     const router = useRouter();
+    
 
     useEffect(() => {
         // Reset state on component mount or when roomAvailability changes

@@ -40,7 +40,7 @@ const isRoomTypeAvailable = useCallback((date: Date, type: string) => {
         (nextDay >= new Date(booking.startDate) && nextDay <= new Date(booking.endDate))
     );
   }, [roomAvailability]);
-  
+
     useEffect(() => {
         // Reset state on component mount or when roomAvailability changes
         if (roomAvailability.length > 0) {
